@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../libs/socket.io.js"></script>
+</head>
+
+<body>
+    <canvas width="1680" height="1050"></canvas>
+    <script>
+        var clientCanvas = document.querySelector('canvas');
+        var clientContext = clientCanvas.getContext('2d');
+        var socket = io('http://localhost:8899');
+        socket.on('recordScreen', ({ dataUrl }) => {
+            console.log(dataUrl);
+            drawImgAtCanvas(dataUrl);
+        });
+        // img转canvas
+        function drawImgAtCanvas(dataUrl) {
+            let img = new Image();
+            img.onload = function () {
+                clientContext.drawImage(img, 0, 0, 1680, 1050);
+            };
+            img.src = dataUrl;
+        }
+    </script>
+</body>
+
+</html>

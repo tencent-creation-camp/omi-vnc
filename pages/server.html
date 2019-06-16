@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../libs/socket.io.js"></script>
+</head>
+
+<body>
+    <canvas width="1680" height="1050"></canvas>
+    <video id="my-player" autoplay controls></video>
+    <script>
+        var video = document.querySelector('video');
+        var serverCanvas = document.querySelector('canvas');
+        var serverContext = serverCanvas.getContext('2d');
+        var socket = io('http://localhost:8899');
+        // console.log(serverContext, serverContext);
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        })
+            .then(function (stream) {
+                console.log(stream);
+                // video.src = URL.createObjectURL(stream);
+                video.srcObject = stream;
+                drawVideoAtCanvas(video, serverContext);
+            })
+            .catch(function () {
+                alert('could not connect stream');
+            });
+        // 将视频帧绘制到canvas对象上,canvas每60ms切换帧，形成肉眼视频效果
+        // video转canvas
+        function drawVideoAtCanvas(video, context) {
+            window.setInterval(function () {
+                serverContext.drawImage(video, 0, 0, 1680, 1050);
+                // canvas转为img的地址data:base64
+                var dataUrl = serverCanvas.toDataURL('image/png');
+                socket.emit('recordScreen', {
+                    dataUrl
+                });
+            }, 0);
+        }
+    </script>
+</body>
+
+</html>

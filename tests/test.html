@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas width="640" height="480" id="my-canvas"></canvas>
+    <canvas width="640" height="480"></canvas>
+    <video id="my-player" autoplay controls></video>
+    <script>
+        var video = document.querySelector('video');
+        var serverCanvas = document.querySelectorAll('canvas')[0];
+        var clientCanvas = document.querySelectorAll('canvas')[1];
+        var serverContext = serverCanvas.getContext('2d');
+        var clientContext = clientCanvas.getContext('2d');
+
+        // var http = require('http');
+
+        // http.createServer((req, res) => {
+        // var http = require('http');
+        // console.log(serverContext, serverContext);
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        })
+            .then(function (stream) {
+                console.log(stream);
+                // video.src = URL.createObjectURL(stream);
+                video.srcObject = stream;
+                drawVideoAtCanvas(video, serverContext);
+            })
+            .catch(function () {
+                alert('could not connect stream');
+            });
+        // 将视频帧绘制到canvas对象上,canvas每60ms切换帧，形成肉眼视频效果
+        // video转canvas
+        function drawVideoAtCanvas(video, context) {
+            window.setInterval(function () {
+                serverContext.drawImage(video, 0, 0, 640, 480);
+                // canvas转为img的地址data:base64
+                var dataurl = serverCanvas.toDataURL('image/png');
+                drawImgAtCanvas(dataurl);
+                // res.end(dataurl);
+                console.log(dataurl);
+            }, 60);
+        }
+
+        // img转canvas
+        function drawImgAtCanvas(dataurl) {
+            let img = new Image();
+            img.onload = function () {
+                clientContext.drawImage(img, 0, 0, 640, 480);
+            };
+            img.src = dataurl;
+        }
+// }).listen(5858)
+    </script>
+</body>
+
+</html>
